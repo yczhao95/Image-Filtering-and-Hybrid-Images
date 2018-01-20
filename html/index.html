@@ -1,0 +1,378 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Yincheng Zhao</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 1: Image Filtering and Hybrid Images</h2>
+
+
+<p>
+In this assignment,an image filtering function is written so that it could create hybrid images. The interpretatioin of the hybrid image changeswith viewing distance. The input is two images, for example, image1 and image2, the function create a hybrid image that, when looks closely, it looks like image2, and when looks at a far distacne, it appears to be image1.  
+
+In this report, the following contents is included.
+
+</p>
+
+<ol>
+<li>Implementation of Image Filtering</li>
+<li>Implementation of Hybrid Images</li>
+<li>Experiment Results of Hybrid Images</li>
+<li>Discussion</li>
+</ol>
+
+<p> 	
+not much to say here</p>
+
+<div style="clear:both">
+<h2>Implementation of Image Filtering</h2>
+
+<p>Although Matlab already has a built in function called "imfilter", it is still to our best that we write up an imfilter of our own to gain a deeper understanding of the convolution operation, note that the 2-D correlation process here is a 180 degree rotation from the convolution filter matrix.</p>
+
+<h3>Matlab code for Image Filtering</h3>
+<p>Below is the implementation of my_imfilter in Matlab</p>
+
+<pre><code>
+function output = my_imfilter(image, filter)
+si=size(image);
+sf=size(filter);
+hf=floor(sf(1)/2);
+wf=floor(sf(2)/2);
+R=zeros(si(1),si(2));
+G=zeros(si(1),si(2));
+B=zeros(si(1),si(2));
+for i=1:1:si(1)
+    sprintf('%2.2f%%', i/si(1)*100) 
+    for j=1:1:si(2)
+        for i2=-hf:1:hf
+            for j2=-wf:1:wf
+                 h=i+i2;w=j+j2;
+                if h<=0
+                    h=2-h;
+                end
+                if h>si(1)
+                    h=2*si(1)-h;
+                end
+                if w<=0
+                    w=2-w;
+                end
+                if w>si(2)
+                    w=2*si(2)-w;
+                end
+                R(i,j)=R(i,j) + image(h,w,1)*filter(hf+1+i2,wf+1+j2);
+                 G(i,j)=G(i,j)+ image(h,w,2)*filter(hf+1+i2,wf+1+j2);
+                  B(i,j)=B(i,j)+ image(h,w,3)*filter(hf+1+i2,wf+1+j2);
+            end       
+        end
+    end
+end
+output(:,:,1)=R;
+output(:,:,2)=G;
+output(:,:,3)=B;
+
+</code></pre>
+
+<p>Without the various optimizations on harware level like matlab did,this version of my_imfilter runs far slower than the built in imfilter function. However, it does works with the following highlights. </p><ol>
+<li>The function work for filters of any width and height combination, this is done by taking the size of the input filter and use that paramenter in the for loop for convolutioin.</li>
+<li>Boundary handling is tackled through mirroring the image content over the boundaries for padding. This is done by the four "if" sentences inside the "j2" loop, where the function will decide if the pixels in the filter is outside that image and if so, it would use the mirror pixel over the boundary for calculation.</li>
+<li>The function has reached its maximum speed, as the time complexity is O(n*m), where n is the nunmber of pixels in the image and m is the number of pixels in the filter.</li>
+<li>As the calculation speed is rather slow, the sprintf sentence allows user to have an idea of how many percentage of calculation has been done.</li>
+</ol>
+
+<h2>Implementation of Hybrid Images</h2>
+
+<p>To do this, a gaussian blur with a cutoff frequency is applied to image1 to create a low frequencies version of image 1 and image2. Then, the high frequencies of image2 is obtained through image2-image2_low_frequencies. Finally, we simply add up the high frequencies of image2 and low frequencies of image1 to create the hybrid image of them. </p>
+
+<h3>Core code for Hybrid Images</h3>
+<p>Below is the implementation of my_imfilter in Matlab</p>
+
+<pre><code>
+large_1d_blur_filter = fspecial('Gaussian', [cutoff_frequency*4+1 1], cutoff_frequency*4+1);
+
+% Remove the high frequencies from image1 by blurring it. 
+low_frequencies = my_imfilter(image1, large_1d_blur_filter);
+low_frequencies = my_imfilter(low_frequencies, large_1d_blur_filter'); 
+
+% Remove the low frequencies from image2. 
+low_frequencies2 = my_imfilter(image2, large_1d_blur_filter);
+low_frequencies2 = my_imfilter(low_frequencies2, large_1d_blur_filter');
+high_frequencies = image2-low_frequencies2;
+
+% Combine the high frequencies and low frequencies
+hybrid_image = low_frequencies+high_frequencies; 
+</code></pre>
+<p>Note that in this process, the cutoff_frequency is a paramenter that needs to be tuned for every pair of images to obtain a better result.To accelerate the calculation, as the blur filter is a gaussian filter, we can seperate the filtering process and blur sequentially in each direction, which can reduce the time complexity from O(n*m^2) to O(nm) where n is the number of pixels in the image and m is the size of the gaussian blur filter. 
+
+<h2>Experiment Results of Hybrid Images</h2>
+<p>Here we present 5 examples of hybrid images. From left to right, the sequence of the images is:
+high frequences of image1, low frequencies of image2, the hybrid image, visualization of hybrid image with diffrent scales.</p>
+<table border=1>
+<tr>
+<td>
+<img src="bird_plane/high_frequencies.jpg" width="24%"/>
+<img src="bird_plane/low_frequencies.jpg"  width="24%"/>
+<img src="bird_plane/hybrid_image.jpg" width="24%"/>
+<img src="bird_plane/hybrid_image_scales.jpg" width="24%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="cat_dog/high_frequencies.jpg" width="24%"/>
+<img src="cat_dog/low_frequencies.jpg"  width="24%"/>
+<img src="cat_dog/hybrid_image.jpg" width="24%"/>
+<img src="cat_dog/hybrid_image_scales.jpg" width="24%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="cycle_motorcycle/high_frequencies.jpg" width="24%"/>
+<img src="cycle_motorcycle/low_frequencies.jpg"  width="24%"/>
+<img src="cycle_motorcycle/hybrid_image.jpg" width="24%"/>
+<img src="cycle_motorcycle/hybrid_image_scales.jpg" width="24%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="eistein_maryline/high_frequencies.jpg" width="24%"/>
+<img src="eistein_maryline/low_frequencies.jpg"  width="24%"/>
+<img src="eistein_maryline/hybrid_image.jpg" width="24%"/>
+<img src="eistein_maryline/hybrid_image_scales.jpg" width="24%"/>
+</td>
+</tr>
+
+
+<tr>
+<td>
+<img src="fish_submarine/high_frequencies.jpg" width="24%"/>
+<img src="fish_submarine/low_frequencies.jpg"  width="24%"/>
+<img src="fish_submarine/hybrid_image.jpg" width="24%"/>
+<img src="fish_submarine/hybrid_image_scales.jpg" width="24%"/>
+</td>
+</tr>
+
+</table>
+
+<div style="clear:both" >
+<p> 
+Look at the third row of the table, you would see the image whose high frequencies is substracted, and from a distance, or just look at the second image from the fourth row, you would see the image whose low frequencies is used. </p>
+
+
+<h2>Discussion</h2>
+<h3>Increasing the speed of my_imfilter</h3>
+<p>As described earlier, the speed of my_imfilter is pretty slow because of the lack of optimizations on the architecture scale. Eventually, the function could do the calculation within 2 minutes for a image with 1000 pixels and gaussian blur filter with size 30*30. At first, the speed was even much slower. I did a few parameter optimization to avoid unecessary calculation, for example, pre allocating the RGB matrix and do the calculations for them all together in the very inner loop. And I also blured sequentially in each direction, which makes the filter n times faster(when the size of filter is n).
+</p>
+<h3>Determining the cut off frequency</h3>
+<p>We do the following gradient experiment, where we increase the cut off frequency from 1 to 10 with an interval of 3 and look at the results of he hybrid image. From left to right, the sequence of the images is:
+high frequences of image1, low frequencies of image2, the hybrid image.
+</p>
+<table border=1>
+<tr>
+<td>
+<img src="cat&dog_freq/high_frequencies1.jpg" width="33%"/>
+<img src="cat&dog_freq/low_frequencies1.jpg"  width="33%"/>
+<img src="cat&dog_freq/hybrid_image1.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="cat&dog_freq/high_frequencies4.jpg" width="33%"/>
+<img src="cat&dog_freq/low_frequencies4.jpg"  width="33%"/>
+<img src="cat&dog_freq/hybrid_image4.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="cat&dog_freq/high_frequencies7.jpg" width="33%"/>
+<img src="cat&dog_freq/low_frequencies7.jpg"  width="33%"/>
+<img src="cat&dog_freq/hybrid_image7.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="cat&dog_freq/high_frequencies10.jpg" width="33%"/>
+<img src="cat&dog_freq/low_frequencies10.jpg"  width="33%"/>
+<img src="cat&dog_freq/hybrid_image10.jpg" width="33%"/>
+</td>
+</tr>
+
+</table>
+<p>We can also reverse image1 and image2 and look at the result</p>
+<table border=1>
+<tr>
+<td>
+<img src="dog&cat_freq/high_frequencies1.jpg" width="33%"/>
+<img src="dog&cat_freq/low_frequencies1.jpg"  width="33%"/>
+<img src="dog&cat_freq/hybrid_image1.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="dog&cat_freq/high_frequencies4.jpg" width="33%"/>
+<img src="dog&cat_freq/low_frequencies4.jpg"  width="33%"/>
+<img src="dog&cat_freq/hybrid_image4.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="dog&cat_freq/high_frequencies7.jpg" width="33%"/>
+<img src="dog&cat_freq/low_frequencies7.jpg"  width="33%"/>
+<img src="dog&cat_freq/hybrid_image7.jpg" width="33%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="dog&cat_freq/high_frequencies10.jpg" width="33%"/>
+<img src="dog&cat_freq/low_frequencies10.jpg"  width="33%"/>
+<img src="dog&cat_freq/hybrid_image10.jpg" width="33%"/>
+</td>
+</tr>
+</table>
+<p>As is shown, the higher the cut off frequency gets, the more blurry the low frequencies image is, and the more details we can see from the high frequencies image. In a closer look, the hybrid image appears to be the image with the high frequencies better when the cut off frequency increasesm, while it requires a farther distance to observe the image with a low frequencies. It is also worth notifying that the color information is mostly contained in the low frequencies, and it is still very obvious when one is looking closely.
+</p>
+
+<h3>Future possible improvements</h3>
+<p>To achieve a better visual effect of the hybrid image, the cut off frequency needs to be tuned manually. So it would certainlly be better if we could find way to let the algorithm determine the cut off frequency itself. One way to do is that we first identify the size of the object in the parameter as pixels that we want to hybrid, and then we set the cut off frequency in accordiance with that size.
+</p>
+</div>
+</body>
+</html>
